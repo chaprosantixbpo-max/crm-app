@@ -1,259 +1,217 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CRM Login</title>
-<style>
-    body { font-family: Arial; margin: 20px; }
-    #mainArea, #adminPanel { display: none; }
-    label { font-weight: bold; }
+  <meta charset="utf-8" />
+  <title>Prosantix CRM</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #mainArea, #adminPanel { display:none; }
+    label { font-weight:bold; }
     .hidden { display:none; }
-</style>
+    table { border-collapse: collapse; margin-top:10px; }
+    table td, table th { border: 1px solid #ccc; padding:6px 8px; }
+  </style>
 </head>
-
 <body>
 
 <h2>CRM Login</h2>
-
 <div id="loginArea">
-    <input id="loginUser" placeholder="Username"><br><br>
-    <input id="loginPass" placeholder="Password" type="password"><br><br>
-    <button id="btnLogin">Login</button>
-    <button id="btnDemo">Demo</button>
-    <p id="loginMsg" style="color:red; display:none;"></p>
+  <input id="loginUser" placeholder="Username"><br><br>
+  <input id="loginPass" placeholder="Password" type="password"><br><br>
+  <button id="btnLogin">Login</button>
+  <button id="btnDemo">Demo</button>
+  <p id="loginMsg" style="color:red; display:none;"></p>
 </div>
 
 <div id="mainArea">
+  <h3>Welcome, <span id="agentName"></span></h3>
+  <button id="btnLogout">Logout</button>
+  <hr>
 
-    <h3>Welcome, <span id="agentName"></span></h3>
-    <button onclick="logout()">Logout</button>
-    <hr>
+  <h3>Lookup Customer</h3>
+  <input id="lookupPhone" placeholder="Enter phone #">
+  <button id="btnLookup">Lookup</button>
+  <div id="customerBox" class="hidden">
+    <h4>Customer Details</h4>
+    <div id="cust"></div>
+  </div>
 
-    <h3>Lookup Customer</h3>
-    <input id="lookupPhone" placeholder="Enter phone #">
-    <button id="btnLookup">Lookup</button>
+  <hr>
+  <h3>Questions</h3>
 
-    <div id="customerBox" class="hidden">
-        <h3>Customer Details</h3>
-        <div id="cust"></div>
-    </div>
+  <label>Military Opening</label>
+  <select id="militaryOpening"><option></option><option>Yes</option><option>No</option><option>Unsure</option></select><br><br>
 
-    <hr>
+  <label>Military Q1</label>
+  <select id="militaryQ1"><option></option><option>You</option><option>Household</option><option>No</option><option>Unsure</option></select><br><br>
 
-    <h3>Questions</h3>
+  <label>Military Q2</label>
+  <select id="militaryQ2"><option></option><option>Army</option><option>Navy</option><option>Airforce</option><option>Reservists / TA</option></select><br><br>
 
-    <label>Military Opening</label>
-    <select id="militaryOpening">
-        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
-    </select><br><br>
+  <label>Military Q3</label>
+  <select id="militaryQ3"><option></option><option>After 1987</option><option>Before 1987</option><option>Still serving</option><option>Retired</option></select><br><br>
 
-    <label>Military Q1</label>
-    <select id="militaryQ1">
-        <option></option><option>You</option><option>Household</option><option>No</option><option>Unsure</option>
-    </select><br><br>
+  <label>Scotland Q1</label>
+  <select id="scotlandQ1"><option></option><option>Yes</option><option>No</option><option>Unsure</option></select><br><br>
 
-    <label>Military Q2</label>
-    <select id="militaryQ2">
-        <option></option><option>Army</option><option>Navy</option><option>Airforce</option><option>Reservists / TA</option>
-    </select><br><br>
+  <label>Scotland Q2</label>
+  <select id="scotlandQ2"><option></option><option>Children’s Home</option><option>Residential School</option><option>Foster Care</option><option>Another setting</option></select><br><br>
 
-    <label>Military Q3</label>
-    <select id="militaryQ3">
-        <option></option><option>After 1987</option><option>Before 1987</option><option>Still serving</option><option>Retired</option>
-    </select><br><br>
+  <label>UK Q1</label>
+  <select id="ukQ1"><option></option><option>Yes</option><option>No</option><option>Unsure</option></select><br><br>
 
-    <label>Scotland Q1</label>
-    <select id="scotlandQ1">
-        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
-    </select><br><br>
+  <label>UK Q2</label>
+  <select id="ukQ2"><option></option><option>Children’s Home</option><option>School</option><option>Sunday School</option><option>Youth Group</option><option>Church Activity</option></select><br><br>
 
-    <label>Scotland Q2</label>
-    <select id="scotlandQ2">
-        <option></option><option>Children’s Home</option><option>Residential School</option><option>Foster Care</option><option>Another setting</option>
-    </select><br><br>
+  <label>Notes</label><br>
+  <textarea id="notes" rows="3" cols="40"></textarea><br><br>
 
-    <label>UK Q1</label>
-    <select id="ukQ1">
-        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
-    </select><br><br>
+  <label>Disposition</label>
+  <select id="disposition"><option></option><option>Lead</option><option>Callback</option><option>Not Interested</option></select><br><br>
 
-    <label>UK Q2</label>
-    <select id="ukQ2">
-        <option></option>
-        <option>Children’s Home</option><option>School</option><option>Sunday School</option>
-        <option>Youth Group</option><option>Church Activity</option>
-    </select><br><br>
+  <button id="btnSave">SAVE</button>
 
-    <label>Notes</label><br>
-    <textarea id="notes" rows="3" cols="40"></textarea><br><br>
+  <hr>
 
-    <label>Disposition</label>
-    <select id="disposition">
-        <option></option><option>Lead</option><option>Callback</option><option>Not Interested</option>
-    </select><br><br>
-
-    <button id="btnSave">SAVE</button>
-
-    <hr>
-
-    <div id="adminPanel">
-        <h2>Admin Panel</h2>
-        <button id="btnLoadResponses">Load All Saved Leads</button>
-        <div id="responseTable"></div>
-    </div>
+  <div id="adminPanel">
+    <h3>Admin Panel</h3>
+    <button id="btnLoadResponses">Load All Saved Leads</button>
+    <div id="responseTable"></div>
+  </div>
 
 </div>
 
-<!-- ========================= -->
-<!-- REAL WORKING JS SECTION -->
-<!-- ========================= -->
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwOmOk6FL59mZSuK6J7tS9u3TLa27_0we8iV2PShusLumJ0BemGwdnfobucEFMtFPY-/exec";
+  const el = id => document.getElementById(id);
+  let currentCustomer = null;
 
-const el = id => document.getElementById(id);
-
-/* SHA256 */
-async function sha256Hex(text) {
+  // Simple SHA-256 helper (returns hex)
+  async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
-}
+  }
 
-/* ================= LOGIN ================= */
-el("btnLogin").addEventListener("click", async () => {
-    const user = el("loginUser").value.trim();
-    const pass = el("loginPass").value.trim();
-    if (!user || !pass) return showLoginMsg("Enter username & password");
+  function showLoginMsg(m) {
+    el("loginMsg").innerText = m;
+    el("loginMsg").style.display = "block";
+    setTimeout(()=> el("loginMsg").style.display="none", 3000);
+  }
+
+  // Login
+  el("btnLogin").addEventListener("click", async () => {
+    const username = el("loginUser").value.trim();
+    const pass = el("loginPass").value;
+    if (!username || !pass) return showLoginMsg("Enter username & password");
 
     const passHash = await sha256Hex(pass);
 
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "login",
-            username: user,
-            password: passHash,
-            rawPassword: pass
-        })
-    });
-
-    const j = await res.json();
-
-    if (j.success) {
-        localStorage.setItem("crm_user", JSON.stringify({
-            username: user,
-            role: j.role,
-            token: j.token || ""
-        }));
+    google.script.run.withSuccessHandler(res => {
+      if (res && res.success) {
+        localStorage.setItem("crm_user", JSON.stringify({ username, role: res.role, token: res.token || "" }));
         setupAfterLogin();
-    } else showLoginMsg("Invalid login");
-});
+      } else {
+        showLoginMsg("Invalid login");
+      }
+    }).server_login({ username, password: passHash, rawPassword: pass });
+  });
 
-/* DEMO BUTTON */
-el("btnDemo").addEventListener("click", () => {
+  el("btnDemo").addEventListener("click", () => {
     el("loginUser").value = "Agent01";
     el("loginPass").value = "1001";
     el("btnLogin").click();
-});
+  });
 
-/* Show login message */
-function showLoginMsg(m) {
-    el("loginMsg").innerText = m;
-    el("loginMsg").style.display = "block";
-    setTimeout(() => el("loginMsg").style.display = "none", 2500);
-}
-
-/* ================= LOOKUP ================= */
-el("btnLookup").addEventListener("click", lookupNow);
-
-async function lookupNow() {
-    const phone = el("lookupPhone").value.trim();
-    if (!phone) return alert("Enter phone");
-
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "lookup", phone })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-        alert("Not found");
-        el("customerBox").classList.add("hidden");
-        return;
-    }
-
-    el("cust").innerHTML = `
-        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
-        ${data.address1}<br>${data.address2}<br>${data.address3}<br>
-        ${data.county}<br>${data.postcode}<br>
-        Age: ${data.age}<br>
-        Phone: ${data.telephone}
-    `;
-    el("customerBox").classList.remove("hidden");
-}
-
-/* ================= SAVE ================= */
-el("btnSave").addEventListener("click", saveNow);
-
-async function saveNow() {
-    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
-    if (!user.username) return alert("Login first");
-
-    const payload = {
-        action: "save",
-        agent: user.username,
-        // (You can add all your fields here exactly how you had it)
-        notes: el("notes").value,
-        disposition: el("disposition").value
-    };
-
-    await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    });
-
-    alert("Saved!");
-}
-
-/* ================= ADMIN LOAD ================= */
-el("btnLoadResponses").addEventListener("click", async () => {
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action:"fetch_responses" })
-    });
-
-    const j = await res.json();
-
-    if (!j.values) return el("responseTable").innerText = "No results";
-
-    let html = "<table border='1' cellpadding='5'>";
-    j.values.forEach(row => {
-        html += "<tr>" + row.map(c => `<td>${c}</td>`).join("") + "</tr>";
-    });
-    html += "</table>";
-
-    el("responseTable").innerHTML = html;
-});
-
-/* ================= POST-LOGIN SETUP ================= */
-function setupAfterLogin() {
-    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
-
+  function setupAfterLogin() {
+    const user = JSON.parse(localStorage.getItem("crm_user")||"{}");
+    if (!user || !user.username) return;
     el("loginArea").style.display = "none";
     el("mainArea").style.display = "block";
     el("agentName").innerText = user.username;
+    if ((user.role||"").toLowerCase() === "admin") el("adminPanel").style.display = "block";
+    else el("adminPanel").style.display = "none";
+  }
 
-    if (user.role === "admin") {
-        el("adminPanel").style.display = "block";
-    }
-}
-
-/* ================= LOGOUT ================= */
-function logout() {
+  el("btnLogout").addEventListener("click", () => {
     localStorage.removeItem("crm_user");
-    window.location.reload();
-}
+    location.reload();
+  });
+
+  // Lookup
+  el("btnLookup").addEventListener("click", () => {
+    const phone = el("lookupPhone").value.trim();
+    if (!phone) return alert("Enter phone");
+    google.script.run.withSuccessHandler(data => {
+      if (!data) { alert("Not found"); el("customerBox").classList.add("hidden"); currentCustomer=null; return; }
+      currentCustomer = data;
+      el("cust").innerHTML = `<b>${data.title||""} ${data.firstName||""} ${data.lastName||""}</b><br>
+        ${data.address1||""}<br>${data.address2||""}<br>${data.address3||""}<br>${data.county||""}<br>${data.postcode||""}<br>
+        Age: ${data.age||""}<br>Phone: ${data.telephone||""}`;
+      el("customerBox").classList.remove("hidden");
+    }).server_lookup(phone);
+  });
+
+  // Save
+  el("btnSave").addEventListener("click", () => {
+    const user = JSON.parse(localStorage.getItem("crm_user")||"{}");
+    if (!user || !user.username) return showLoginMsg("Please login first");
+
+    const payload = {
+      phone: el("lookupPhone").value.trim(),
+      title: currentCustomer ? currentCustomer.title : "",
+      firstName: currentCustomer ? currentCustomer.firstName : "",
+      lastName: currentCustomer ? currentCustomer.lastName : "",
+      telephone: currentCustomer ? currentCustomer.telephone : "",
+      address1: currentCustomer ? currentCustomer.address1 : "",
+      address2: currentCustomer ? currentCustomer.address2 : "",
+      address3: currentCustomer ? currentCustomer.address3 : "",
+      county: currentCustomer ? currentCustomer.county : "",
+      postcode: currentCustomer ? currentCustomer.postcode : "",
+      age: currentCustomer ? currentCustomer.age : "",
+
+      militaryOpening: el("militaryOpening").value,
+      militaryQ1: el("militaryQ1").value,
+      militaryQ2: el("militaryQ2").value,
+      militaryQ3: el("militaryQ3").value,
+      scotlandQ1: el("scotlandQ1").value,
+      scotlandQ2: el("scotlandQ2").value,
+      ukQ1: el("ukQ1").value,
+      ukQ2: el("ukQ2").value,
+      notes: el("notes").value,
+      disposition: el("disposition").value,
+      agent: user.username
+    };
+
+    google.script.run.withSuccessHandler(r => {
+      if (r && r.ok) {
+        alert("Saved!");
+        el("notes").value = "";
+        el("disposition").value = "";
+      } else {
+        alert("Saved (server returned unexpected response)");
+      }
+    }).server_saveLead(payload);
+  });
+
+  // Admin: load responses
+  el("btnLoadResponses").addEventListener("click", () => {
+    google.script.run.withSuccessHandler(j => {
+      if (!j || !j.length) { el("responseTable").innerText = "No results"; return; }
+      let html = "<table><tr>";
+      j[0].forEach(h => html += `<th>${h}</th>`);
+      html += "</tr>";
+      for (let r = 1; r < j.length; r++) {
+        html += "<tr>";
+        j[r].forEach(c => html += `<td>${c}</td>`);
+        html += "</tr>";
+      }
+      html += "</table>";
+      el("responseTable").innerHTML = html;
+    }).server_fetchResponses();
+  });
+
+  // Initialize UI on load (if logged-in)
+  window.addEventListener("load", setupAfterLogin);
 </script>
 
 </body>
 </html>
-
