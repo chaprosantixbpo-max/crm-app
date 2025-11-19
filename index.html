@@ -158,7 +158,8 @@ el("btnLogin").addEventListener("click", async () => {
     const pass = el("loginPass").value.trim();
     if (!user || !pass) return showLoginMsg("Enter username & password");
 
-    const passHash = await sha256Hex(pass);
+  const passHash = pass;
+
 
     const res = await fetch(API_URL, {
         method: "POST",
@@ -291,3 +292,4 @@ function logout() {
 
 </body>
 </html>
+
