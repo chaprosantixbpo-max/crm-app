@@ -207,32 +207,54 @@ async function lookupPhone() {
 
 // SAVE CALL
 async function saveCall() {
-    let user = JSON.parse(localStorage.getItem("user"));
+    const payload = {
+        phone: document.getElementById('telephone').value,
+        title: document.getElementById('title').value,
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        telephone: document.getElementById('telephone').value,
+        address1: document.getElementById('address1').value,
+        address2: document.getElementById('address2').value,
+        address3: document.getElementById('address3').value,
+        county: document.getElementById('county').value,
+        postcode: document.getElementById('postcode').value,
+        age: document.getElementById('age').value,
 
-    let body = {
-        phone: document.getElementById("telephone").value,
-        title: title.value,
-        firstName: firstName.value,
-        lastName: lastName.value,
-        telephone: telephone.value,
-        address1: address1.value,
-        address2: address2.value,
-        address3: address3.value,
-        county: county.value,
-        postcode: postcode.value,
-        age: age.value,
-        militaryOpening: militaryOpening.value,
-        militaryQ1: militaryQ1.value,
-        militaryQ2: militaryQ2.value,
-        militaryQ3: militaryQ3.value,
-        scotlandQ1: scotlandQ1.value,
-        scotlandQ2: scotlandQ2.value,
-        ukQ1: ukQ1.value,
-        ukQ2: ukQ2.value,
-        notes: notes.value,
-        disposition: disposition.value,
-        agent: user.username
+        // ✅ NEW DROPDOWNS (Non-editable questions + fixed answers)
+        militaryOpening: document.getElementById('militaryOpening').value,
+        militaryQ1: document.getElementById('militaryQ1').value,
+        militaryQ2: document.getElementById('militaryQ2').value,
+        militaryQ3: document.getElementById('militaryQ3').value,
+
+        scotlandQ1: document.getElementById('scotlandQ1').value,
+        scotlandQ2: document.getElementById('scotlandQ2').value,
+
+        ukQ1: document.getElementById('ukQ1').value,
+        ukQ2: document.getElementById('ukQ2').value,
+
+        notes: document.getElementById('notes').value,
+        disposition: document.getElementById('disposition').value,
+        agent: localStorage.getItem("loggedUser") || ""
     };
+
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            contentType: "application/json",
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("Call saved successfully!");
+        } else {
+            alert("Failed to save call.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Error saving call.");
+    }
+}
+;
 
     await fetch(API_URL, {
         method: "POST",
@@ -250,4 +272,5 @@ showCRM();
 
 </body>
 </html>
+
 
