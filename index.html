@@ -358,7 +358,7 @@ el('btnLogin').addEventListener('click', async ()=>{
     }
   }catch(err){ console.error(err); showLoginMsg('Login failed'); }
 });
-el('btnDemo').addEventListener('click', ()=>{ el('loginUser').value='agent01'; el('loginPass').value='0001'; el('btnLogin').click(); });
+el('btnDemo').addEventListener('click', ()=>{ el('loginUser').value='agent01'; el('loginPass').value='1'; el('btnLogin').click(); });
 function showLoginMsg(m){ el('loginMsg').innerText = m; el('loginMsg').style.display='block'; setTimeout(()=>el('loginMsg').style.display='none',3000); }
 
 /* After login UI */
@@ -575,5 +575,6 @@ function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;
 </script>
 </body>
 </html>
+
 
 
