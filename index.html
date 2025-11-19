@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agent CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 95%;
+        max-width: 700px;
+        margin: 40px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; }
+    input, select, textarea {
+        width: 100%; padding: 10px; margin: 8px 0;
+        border: 1px solid #ccc; border-radius: 5px;
+    }
+    button {
+        padding: 12px; width: 100%;
+        background: #007bff; color: white;
+        border: none; border-radius: 5px;
+        cursor: pointer; font-size: 16px;
+    }
+    button:hover { background: #0056b3; }
+    .hidden { display: none; }
+</style>
+
+</head>
+<body>
+
+<div class="container" id="loginBox">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="loginError" style="color:red; display:none;">Invalid login</p>
+</div>
+
+
+<div class="container hidden" id="crmBox">
+    <h2>Agent CRM</h2>
+
+    <p>Logged in as: <b id="userRole"></b> (<span id="userName"></span>)</p>
+    <button onclick="logout()" style="background:#dc3545;">Logout</button>
+    <hr>
+
+    <h3>Phone Lookup</h3>
+    <input id="phoneSearch" placeholder="Enter phone number">
+    <button onclick="lookupPhone()">Search</button>
+
+    <hr>
+
+    <h3>Customer Info</h3>
+    <input id="title" placeholder="Title">
+    <input id="firstName" placeholder="First Name">
+    <input id="lastName" placeholder="Last Name">
+    <input id="telephone" placeholder="Telephone">
+    <input id="address1" placeholder="Address 1">
+    <input id="address2" placeholder="Address 2">
+    <input id="address3" placeholder="Address 3">
+    <input id="county" placeholder="County">
+    <input id="postcode" placeholder="Postcode">
+    <input id="age" placeholder="Age">
+
+    <h3>Questions</h3>
+    <input id="militaryOpening" placeholder="Military Opening">
+    <input id="militaryQ1" placeholder="Military Q1">
+    <input id="militaryQ2" placeholder="Military Q2">
+    <input id="militaryQ3" placeholder="Military Q3">
+    <input id="scotlandQ1" placeholder="Scotland Q1">
+    <input id="scotlandQ2" placeholder="Scotland Q2">
+    <input id="ukQ1" placeholder="UK Q1">
+    <input id="ukQ2" placeholder="UK Q2">
+
+    <textarea id="notes" placeholder="Notes"></textarea>
+
+    <select id="disposition">
+        <option value="">Disposition</option>
+        <option>Sale</option>
+        <option>No Answer</option>
+        <option>Callback</option>
+        <option>Not Interested</option>
+    </select>
+
+    <button onclick="saveCall()" style="background:green;">Save Call</button>
+
+    <p id="saveMsg" style="color:green; display:none;">Saved!</p>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbx2xtqNr70wqg4w6ChxSkkdhapgpJ2Vun2DuxkUhsgqWplT183j2phyfiOoTQv0BTNV/exec"; // <<<< REPLACE THIS ONLY
+
+// LOGIN
+async function login() {
+    let u = document.getElementById("username").value.trim();
+    let p = document.getElementById("password").value.trim();
+
+    let res = await fetch("users.json"); // This file MUST exist later
+    let users = await res.json();
+
+    if (!users[u] || users[u].password != p) {
+        document.getElementById("loginError").style.display = "block";
+        return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(users[u]));
+    showCRM();
+}
+
+function showCRM() {
+    let user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (!user.username) return;
+
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("crmBox").classList.remove("hidden");
+
+    document.getElementById("userRole").innerText = user.role;
+    document.getElementById("userName").innerText = user.username;
+}
+
+function logout() {
+    localStorage.removeItem("user");
+    location.reload();
+}
+
+// PHONE LOOKUP
+async function lookupPhone() {
+    let phone = document.getElementById("phoneSearch").value;
+    let res = await fetch(API_URL + "?phone=" + phone);
+    let data = await res.json();
+
+    if (data.error) { alert("Not found"); return; }
+
+    for (let k in data) { 
+        if (document.getElementById(k)) {
+            document.getElementById(k).value = data[k];
+        }
+    }
+}
+
+// SAVE CALL
+async function saveCall() {
+    let user = JSON.parse(localStorage.getItem("user"));
+
+    let body = {
+        phone: document.getElementById("telephone").value,
+        title: title.value,
+        firstName: firstName.value,
+        lastName: lastName.value,
+        telephone: telephone.value,
+        address1: address1.value,
+        address2: address2.value,
+        address3: address3.value,
+        county: county.value,
+        postcode: postcode.value,
+        age: age.value,
+        militaryOpening: militaryOpening.value,
+        militaryQ1: militaryQ1.value,
+        militaryQ2: militaryQ2.value,
+        militaryQ3: militaryQ3.value,
+        scotlandQ1: scotlandQ1.value,
+        scotlandQ2: scotlandQ2.value,
+        ukQ1: ukQ1.value,
+        ukQ2: ukQ2.value,
+        notes: notes.value,
+        disposition: disposition.value,
+        agent: user.username
+    };
+
+    await fetch(API_URL, {
+        method: "POST",
+        contentType: "application/json",
+        body: JSON.stringify(body)
+    });
+
+    document.getElementById("saveMsg").style.display = "block";
+    setTimeout(() => document.getElementById("saveMsg").style.display = "none", 2000);
+}
+
+// AUTO LOGIN IF SESSION EXISTS
+showCRM();
+</script>
+
+</body>
+</html>
