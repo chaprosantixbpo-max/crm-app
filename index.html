@@ -11,7 +11,9 @@
 </head>
 
 <body>
-
+<script>
+console.log("JS loaded!");
+</script>
 <h2>CRM Login</h2>
 
 <div id="loginArea">
@@ -248,4 +250,5 @@ el("btnLoadResponses").addEventListener("click", async () => {
         html += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
     html += "</
+
 
