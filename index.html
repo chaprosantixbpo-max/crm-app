@@ -12,11 +12,16 @@
 
 <body>
 <script>
-console.log("App script loaded");
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("App script loaded");
 
-document.getElementById("loginBtn").addEventListener("click", () => {
-    console.log("Login button clicked!");
+    const btn = document.getElementById("loginBtn");
+    console.log("Button found?", btn);
 
+    btn?.addEventListener("click", () => {
+        console.log("Login button clicked!");
+    });
+});
 </script>
 <h2>CRM Login</h2>
 
