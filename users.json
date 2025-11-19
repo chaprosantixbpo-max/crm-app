@@ -1,0 +1,29 @@
+{
+  "agent01": { "password": "1", "role": "agent", "username": "agent01" },
+  "agent02": { "password": "2", "role": "agent", "username": "agent02" },
+  "agent03": { "password": "3", "role": "agent", "username": "agent03" },
+  "agent04": { "password": "4", "role": "agent", "username": "agent04" },
+  "agent05": { "password": "5", "role": "agent", "username": "agent05" },
+  "agent06": { "password": "6", "role": "agent", "username": "agent06" },
+  "agent07": { "password": "7", "role": "agent", "username": "agent07" },
+  "agent08": { "password": "8", "role": "agent", "username": "agent08" },
+  "agent09": { "password": "9", "role": "agent", "username": "agent09" },
+  "agent10": { "password": "10", "role": "agent", "username": "agent10" },
+  "agent11": { "password": "11", "role": "agent", "username": "agent11" },
+  "agent12": { "password": "12", "role": "agent", "username": "agent12" },
+  "agent13": { "password": "13", "role": "agent", "username": "agent13" },
+  "agent14": { "password": "14", "role": "agent", "username": "agent14" },
+  "agent15": { "password": "15", "role": "agent", "username": "agent15" },
+  "agent16": { "password": "16", "role": "agent", "username": "agent16" },
+  "agent17": { "password": "17", "role": "agent", "username": "agent17" },
+  "agent18": { "password": "18", "role": "agent", "username": "agent18" },
+  "agent19": { "password": "19", "role": "agent", "username": "agent19" },
+  "agent20": { "password": "20", "role": "agent", "username": "agent20" },
+
+  "qa01": { "password": "1001", "role": "qa", "username": "qa01" },
+  "qa02": { "password": "1002", "role": "qa", "username": "qa02" },
+  "qa03": { "password": "1003", "role": "qa", "username": "qa03" },
+
+  "admin01": { "password": "9001", "role": "admin", "username": "admin01" },
+  "admin02": { "password": "9002", "role": "admin", "username": "admin02" }
+}
