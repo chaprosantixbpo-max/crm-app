@@ -14,7 +14,6 @@
 
 <h2>CRM Login</h2>
 
-<!-- ================= LOGIN AREA ================= -->
 <div id="loginArea">
     <input id="loginUser" placeholder="Username"><br><br>
     <input id="loginPass" placeholder="Password" type="password"><br><br>
@@ -23,7 +22,6 @@
     <p id="loginMsg" style="color:red; display:none;"></p>
 </div>
 
-<!-- ================= MAIN CRM AREA ================= -->
 <div id="mainArea">
 
     <h3>Welcome, <span id="agentName"></span></h3>
@@ -44,72 +42,46 @@
 
     <label>Military Opening</label>
     <select id="militaryOpening">
-        <option></option>
-        <option>Yes</option>
-        <option>No</option>
-        <option>Unsure</option>
+        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
     </select><br><br>
 
     <label>Military Q1</label>
     <select id="militaryQ1">
-        <option></option>
-        <option>You</option>
-        <option>Household</option>
-        <option>No</option>
-        <option>Unsure</option>
+        <option></option><option>You</option><option>Household</option><option>No</option><option>Unsure</option>
     </select><br><br>
 
     <label>Military Q2</label>
     <select id="militaryQ2">
-        <option></option>
-        <option>Army</option>
-        <option>Navy</option>
-        <option>Airforce</option>
-        <option>Reservists / TA</option>
+        <option></option><option>Army</option><option>Navy</option><option>Airforce</option><option>Reservists / TA</option>
     </select><br><br>
 
     <label>Military Q3</label>
     <select id="militaryQ3">
-        <option></option>
-        <option>After 1987</option>
-        <option>Before 1987</option>
-        <option>Still serving</option>
-        <option>Retired</option>
+        <option></option><option>After 1987</option><option>Before 1987</option>
+        <option>Still serving</option><option>Retired</option>
     </select><br><br>
 
     <label>Scotland Q1</label>
     <select id="scotlandQ1">
-        <option></option>
-        <option>Yes</option>
-        <option>No</option>
-        <option>Unsure</option>
+        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
     </select><br><br>
 
     <label>Scotland Q2</label>
     <select id="scotlandQ2">
-        <option></option>
-        <option>Children’s Home</option>
-        <option>Residential School</option>
-        <option>Foster Care</option>
-        <option>Another setting</option>
+        <option></option><option>Children’s Home</option><option>Residential School</option>
+        <option>Foster Care</option><option>Another setting</option>
     </select><br><br>
 
     <label>UK Q1</label>
     <select id="ukQ1">
-        <option></option>
-        <option>Yes</option>
-        <option>No</option>
-        <option>Unsure</option>
+        <option></option><option>Yes</option><option>No</option><option>Unsure</option>
     </select><br><br>
 
     <label>UK Q2</label>
     <select id="ukQ2">
         <option></option>
-        <option>Children’s Home</option>
-        <option>School</option>
-        <option>Sunday School</option>
-        <option>Youth Group</option>
-        <option>Church Activity</option>
+        <option>Children’s Home</option><option>School</option><option>Sunday School</option>
+        <option>Youth Group</option><option>Church Activity</option>
     </select><br><br>
 
     <label>Notes</label><br>
@@ -117,17 +89,13 @@
 
     <label>Disposition</label>
     <select id="disposition">
-        <option></option>
-        <option>Lead</option>
-        <option>Callback</option>
-        <option>Not Interested</option>
+        <option></option><option>Lead</option><option>Callback</option><option>Not Interested</option>
     </select><br><br>
 
     <button id="btnSave">SAVE</button>
 
     <hr>
 
-    <!-- ================= ADMIN PANEL ================= -->
     <div id="adminPanel">
         <h2>Admin Panel</h2>
         <button id="btnLoadResponses">Load All Saved Leads</button>
@@ -136,23 +104,17 @@
 
 </div>
 
-<!-- ================= SCRIPT ================= -->
 <script>
-
-/* CONFIG */
-const API_URL = "https://script.google.com/macros/s/AKfycbwOmOk6FL59mZSuK6J7tS9u3TLa27_0we8iV2PShusLumJ0BemGwdnfobucEFMtFPY-/exec";   // <-- REPLACE with your Web App URL
+const API_URL = "YOUR_WEB_APP_EXEC_URL";  // MUST end with /exec
 
 const el = id => document.getElementById(id);
 
-/* ============================================================
-   SHA-256 (client-side hashing)
-   ============================================================ */
+/* SHA256 */
 async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-/* ================= state ================= */
 let currentCustomer = null;
 
 /* ================= LOGIN ================= */
@@ -161,29 +123,31 @@ el("btnLogin").addEventListener("click", async () => {
     const pass = el("loginPass").value.trim();
     if (!user || !pass) return showLoginMsg("Enter username & password");
 
-    // hash client-side (keeps compatibility & security)
     const passHash = await sha256Hex(pass);
 
     const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login", username: user, password: passHash, rawPassword: pass })
-        // note: we send both hashed and raw versions so server can handle older plaintext rows
+        body: JSON.stringify({
+            action: "login",
+            username: user,
+            password: passHash,
+            rawPassword: pass
+        })
     });
 
     const j = await res.json();
 
     if (j.success) {
-        // store token + role
-        localStorage.setItem("crm_user", JSON.stringify({ username: user, role: j.role, token: j.token || "" }));
+        localStorage.setItem("crm_user", JSON.stringify({
+            username: user,
+            role: j.role,
+            token: j.token || ""
+        }));
         setupAfterLogin();
-    } else {
-        showLoginMsg("Invalid login");
-    }
+    } else showLoginMsg("Invalid login");
 });
 
 el("btnDemo").addEventListener("click", () => {
-    // Demo values — change to match your sheet if needed
     el("loginUser").value = "Agent01";
     el("loginPass").value = "1001";
     el("btnLogin").click();
@@ -192,17 +156,21 @@ el("btnDemo").addEventListener("click", () => {
 function showLoginMsg(m) {
     el("loginMsg").innerText = m;
     el("loginMsg").style.display = "block";
-    setTimeout(() => el("loginMsg").style.display = "none", 3000);
+    setTimeout(() => el("loginMsg").style.display = "none", 2500);
 }
 
-/* ================= LOOKUP ================= */
+/* ================= LOOKUP (POST FIXED) ================= */
 el("btnLookup").addEventListener("click", lookupNow);
 
 async function lookupNow() {
     const phone = el("lookupPhone").value.trim();
-    if (!phone) return showLoginMsg("Enter phone to lookup");
+    if (!phone) return alert("Enter phone");
 
-    const res = await fetch(`${API_URL}?phone=${encodeURIComponent(phone)}`);
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "lookup", phone })
+    });
+
     const data = await res.json();
 
     if (data.error) {
@@ -212,45 +180,38 @@ async function lookupNow() {
         return;
     }
 
-    currentCustomer = data; // save full customer object for saves
+    currentCustomer = data;
 
-    let html = `
-        <b>${data.title || ""} ${data.firstName || ""} ${data.lastName || ""}</b><br>
-        ${data.address1 || ""}<br>
-        ${data.address2 || ""}<br>
-        ${data.address3 || ""}<br>
-        ${data.county || ""}<br>
-        ${data.postcode || ""}<br>
-        Age: ${data.age || ""}<br>
-        Phone: ${data.telephone || ""}
+    el("cust").innerHTML = `
+        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
+        ${data.address1}<br>${data.address2}<br>${data.address3}<br>
+        ${data.county}<br>${data.postcode}<br>
+        Age: ${data.age}<br>
+        Phone: ${data.telephone}
     `;
-
-    el("cust").innerHTML = html;
     el("customerBox").classList.remove("hidden");
 }
 
-/* ================= SAVE ================= */
+/* ================= SAVE (POST FIXED) ================= */
 el("btnSave").addEventListener("click", saveNow);
 
 async function saveNow() {
     const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
-    if (!user || !user.username) return showLoginMsg("Please login before saving");
+    if (!user.username) return alert("Login first");
 
-    // build payload including full customer fields (if available)
-    const data = {
-        phone: el("lookupPhone").value.trim(),
-
-        title: currentCustomer ? currentCustomer.title || "" : "",
-        firstName: currentCustomer ? currentCustomer.firstName || "" : "",
-        lastName: currentCustomer ? currentCustomer.lastName || "" : "",
-        telephone: currentCustomer ? currentCustomer.telephone || "" : "",
-        address1: currentCustomer ? currentCustomer.address1 || "" : "",
-        address2: currentCustomer ? currentCustomer.address2 || "" : "",
-        address3: currentCustomer ? currentCustomer.address3 || "" : "",
-        county: currentCustomer ? currentCustomer.county || "" : "",
-        postcode: currentCustomer ? currentCustomer.postcode || "" : "",
-        age: currentCustomer ? currentCustomer.age || "" : "",
-
+    const payload = {
+        action: "save",
+        agent: user.username,
+        title: currentCustomer?.title || "",
+        firstName: currentCustomer?.firstName || "",
+        lastName: currentCustomer?.lastName || "",
+        telephone: currentCustomer?.telephone || "",
+        address1: currentCustomer?.address1 || "",
+        address2: currentCustomer?.address2 || "",
+        address3: currentCustomer?.address3 || "",
+        county: currentCustomer?.county || "",
+        postcode: currentCustomer?.postcode || "",
+        age: currentCustomer?.age || "",
         militaryOpening: el("militaryOpening").value,
         militaryQ1: el("militaryQ1").value,
         militaryQ2: el("militaryQ2").value,
@@ -260,85 +221,30 @@ async function saveNow() {
         ukQ1: el("ukQ1").value,
         ukQ2: el("ukQ2").value,
         notes: el("notes").value,
-        disposition: el("disposition").value,
-        agent: user.username
+        disposition: el("disposition").value
     };
 
     const res = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
     });
 
-    // server returns plain OK body for success; try to parse if json
-    try {
-        const txt = await res.text();
-        if (txt && txt.toLowerCase().indexOf('ok') !== -1) {
-            alert("Saved!");
-            // clear fields (optional)
-            el("notes").value = "";
-            el("disposition").value = "";
-        } else {
-            // try json parse
-            const j = JSON.parse(txt);
-            if (j && !j.error) alert("Saved!");
-            else alert("Saved (server returned unexpected response)");
-        }
-    } catch (e) {
-        alert("Saved!");
-    }
+    alert("Saved!");
 }
 
 /* ================= ADMIN PANEL ================= */
-el("btnLoadResponses").addEventListener("click", loadResponses);
+el("btnLoadResponses").addEventListener("click", async () => {
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action:"fetch_responses" })
+    });
 
-async function loadResponses() {
-    const res = await fetch(`${API_URL}?action=fetch_responses`);
     const j = await res.json();
 
-    if (!j.values) {
-        el("responseTable").innerText = "No results";
-        return;
-    }
+    if (!j.values) return el("responseTable").innerText = "No results";
 
     let html = "<table border='1' cellpadding='5'>";
-    j.values.forEach(row => {
-        html += "<tr>";
-        row.forEach(col => html += `<td>${col}</td>`);
-        html += "</tr>";
+    j.values.forEach(r => {
+        html += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
-    html += "</table>";
-
-    el("responseTable").innerHTML = html;
-}
-
-/* ================= SESSION ================= */
-window.addEventListener("load", () => {
-    const user = localStorage.getItem("crm_user");
-    if (user) setupAfterLogin();
-});
-
-function setupAfterLogin() {
-    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
-    if (!user || !user.username) return;
-
-    el("loginArea").style.display = "none";
-    el("mainArea").style.display = "block";
-    el("agentName").innerText = user.username;
-
-    if ((user.role || "").toString().toLowerCase() === "admin") {
-        el("adminPanel").style.display = "block";
-    } else {
-        el("adminPanel").style.display = "none";
-    }
-}
-
-function logout() {
-    localStorage.removeItem("crm_user");
-    location.reload();
-}
-
-</script>
-
-</body>
-</html>
+    html += "</
