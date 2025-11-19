@@ -1,426 +1,293 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Prosantix CRM — Agent Portal</title>
+<title>CRM Login</title>
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;background:#ffffff;color:#111;margin:0;padding:18px}
-  .wrap{max-width:920px;margin:12px auto}
-  .card{border:1px solid #e8e8e8;padding:14px;border-radius:8px;margin-bottom:12px}
-  h1{font-size:18px;margin:0 0 8px}
-  label{display:block;font-weight:600;margin-top:10px;font-size:13px}
-  .qlabel{font-weight:700;margin-top:12px}
-  .qnote{font-size:12px;color:#666;margin-top:6px;margin-bottom:8px}
-  input[type="text"], select, textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;margin-top:6px}
-  textarea{min-height:80px}
-  .row{display:flex;gap:8px}
-  .btn{background:#0b6bfd;color:#fff;border:none;padding:9px 12px;border-radius:6px;cursor:pointer}
-  .btn.alt{background:#f3f4f6;color:#111;border:1px solid #d7d7d7}
-  .small{font-size:12px;color:#666}
-  .hidden{display:none}
-  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{padding:8px;border-bottom:1px solid #f1f1f1;text-align:left;font-size:13px}
-  .admin-note{font-size:12px;color:#333;background:#fbfbfb;padding:8px;border:1px dashed #eee;border-radius:6px;margin-top:8px}
-  .settings-row{display:flex;gap:8px;align-items:center}
-  .settings-row input{flex:1}
-  .tiny{font-size:12px;padding:6px 8px}
+    body { font-family: Arial; margin: 20px; }
+    #mainArea, #adminPanel { display: none; }
+    label { font-weight: bold; }
+    .hidden { display:none; }
 </style>
 </head>
+
 <body>
-<div class="wrap">
 
-  <div class="card top">
-    <div>
-      <h1>Prosantix CRM — Agent Portal</h1>
-      <div class="small">Minimal UI — admin settings are front-end only (saved in your browser).</div>
-    </div>
-    <div id="statusBox" class="small">Not signed in</div>
-  </div>
+<h2>CRM Login</h2>
 
-  <!-- LOGIN -->
-  <div class="card" id="loginCard">
-    <label>Username</label>
-    <input id="loginUser" type="text" placeholder="agent01">
-    <label>Password</label>
-    <input id="loginPass" type="password" placeholder="1">
-    <div style="margin-top:10px" class="row">
-      <button id="btnLogin" class="btn">Sign in</button>
-      <button id="btnDemo" class="btn alt">Demo (agent01)</button>
-    </div>
-    <div id="loginMsg" class="small" style="color:#b02a37;display:none;margin-top:8px"></div>
-  </div>
+<!-- ================= LOGIN AREA ================= -->
+<div id="loginArea">
+    <input id="loginUser" placeholder="Username"><br><br>
+    <input id="loginPass" placeholder="Password" type="password"><br><br>
+    <button id="btnLogin">Login</button>
+    <button id="btnDemo">Demo</button>
+    <p id="loginMsg" style="color:red; display:none;"></p>
+</div>
 
-  <!-- MAIN CRM -->
-  <div class="card hidden" id="crmCard">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div class="small">Signed in as <b id="who"></b></div>
-        <div class="small">Role: <b id="roleBadge"></b></div>
-      </div>
-      <div>
-        <button id="btnSettingsToggle" class="btn alt tiny">Admin Settings</button>
-        <button id="btnLogout" class="btn alt tiny">Logout</button>
-      </div>
+<!-- ================= MAIN CRM AREA ================= -->
+<div id="mainArea">
+
+    <h3>Welcome, <span id="agentName"></span></h3>
+    <button onclick="logout()">Logout</button>
+    <hr>
+
+    <h3>Lookup Customer</h3>
+    <input id="lookupPhone" placeholder="Enter phone #">
+    <button onclick="lookupNow()">Lookup</button>
+
+    <div id="customerBox" class="hidden">
+        <h3>Customer Details</h3>
+        <div id="cust"></div>
     </div>
 
-    <label>Phone Lookup</label>
-    <div class="row">
-      <input id="phoneLookup" type="text" placeholder="Enter phone number">
-      <button id="btnLookup" class="btn">Lookup</button>
-    </div>
+    <hr>
+    <h3>Questions</h3>
 
-    <div id="lookupMsg" class="small" style="margin-top:6px"></div>
+    <label>Military Opening</label>
+    <select id="militaryOpening">
+        <option></option>
+        <option>Yes</option>
+        <option>No</option>
+        <option>Unsure</option>
+    </select><br><br>
 
-    <div id="customerBox" style="margin-top:12px">
-      <div class="small">Customer info (auto-filled)</div>
-      <label class="small">Title</label><input id="title" type="text">
-      <label class="small">First Name</label><input id="firstName" type="text">
-      <label class="small">Last Name</label><input id="lastName" type="text">
-      <label class="small">Telephone</label><input id="telephone" type="text">
-      <label class="small">Address1</label><input id="address1" type="text">
-      <label class="small">Address2</label><input id="address2" type="text">
-      <label class="small">Address3</label><input id="address3" type="text">
-      <label class="small">County</label><input id="county" type="text">
-      <label class="small">Postcode</label><input id="postcode" type="text">
-      <label class="small">Age</label><input id="age" type="text">
-    </div>
-  </div>
+    <label>Military Q1</label>
+    <select id="militaryQ1">
+        <option></option>
+        <option>You</option>
+        <option>Household</option>
+        <option>No</option>
+        <option>Unsure</option>
+    </select><br><br>
 
-  <!-- QUESTIONS -->
-  <div class="card hidden" id="questionsCard">
+    <label>Military Q2</label>
+    <select id="militaryQ2">
+        <option></option>
+        <option>Army</option>
+        <option>Navy</option>
+        <option>Airforce</option>
+        <option>Reservists / TA</option>
+    </select><br><br>
 
-    <div class="small qnote">Select appropriate responses from dropdowns.</div>
+    <label>Military Q3</label>
+    <select id="militaryQ3">
+        <option></option>
+        <option>After 1987</option>
+        <option>Before 1987</option>
+        <option>Still serving</option>
+        <option>Retired</option>
+    </select><br><br>
 
-    <div class="qlabel" id="lbl_militaryOpening">Military Opening</div>
-    <div class="small" id="help_militaryOpening"></div>
-    <select id="militaryOpening"></select>
+    <label>Scotland Q1</label>
+    <select id="scotlandQ1">
+        <option></option>
+        <option>Yes</option>
+        <option>No</option>
+        <option>Unsure</option>
+    </select><br><br>
 
-    <div class="qlabel" id="lbl_militaryQ1"></div>
-    <div class="small" id="help_militaryQ1"></div>
-    <select id="militaryQ1"></select>
+    <label>Scotland Q2</label>
+    <select id="scotlandQ2">
+        <option></option>
+        <option>Children’s Home</option>
+        <option>Residential School</option>
+        <option>Foster Care</option>
+        <option>Another setting</option>
+    </select><br><br>
 
-    <div class="qlabel" id="lbl_militaryQ2"></div>
-    <div class="small" id="help_militaryQ2"></div>
-    <select id="militaryQ2"></select>
+    <label>UK Q1</label>
+    <select id="ukQ1">
+        <option></option>
+        <option>Yes</option>
+        <option>No</option>
+        <option>Unsure</option>
+    </select><br><br>
 
-    <div class="qlabel" id="lbl_militaryQ3"></div>
-    <div class="small" id="help_militaryQ3"></div>
-    <select id="militaryQ3"></select>
+    <label>UK Q2</label>
+    <select id="ukQ2">
+        <option></option>
+        <option>Children’s Home</option>
+        <option>School</option>
+        <option>Sunday School</option>
+        <option>Youth Group</option>
+        <option>Church Activity</option>
+    </select><br><br>
 
-    <div class="qnote" style="font-weight:700">CARE QUESTION (SCOTLAND)</div>
+    <label>Notes</label><br>
+    <textarea id="notes" rows="3" cols="40"></textarea><br><br>
 
-    <div class="qlabel" id="lbl_scotlandQ1"></div>
-    <div class="small" id="help_scotlandQ1"></div>
-    <select id="scotlandQ1"></select>
-
-    <div class="qlabel" id="lbl_scotlandQ2"></div>
-    <div class="small" id="help_scotlandQ2"></div>
-    <select id="scotlandQ2"></select>
-
-    <div class="qnote" style="font-weight:700">FOR THE REST OF THE UK</div>
-
-    <div class="qlabel" id="lbl_ukQ1"></div>
-    <div class="small" id="help_ukQ1"></div>
-    <select id="ukQ1"></select>
-
-    <div class="qlabel" id="lbl_ukQ2"></div>
-    <div class="small" id="help_ukQ2"></div>
-    <select id="ukQ2"></select>
-
-    <label style="margin-top:12px">Notes</label>
-    <textarea id="notes"></textarea>
-
-    <label style="margin-top:8px">Disposition</label>
+    <label>Disposition</label>
     <select id="disposition">
-      <option value="">Select...</option>
-      <option>Lead</option>
-      <option>Non-Lead</option>
-      <option>Callback</option>
-      <option>Not Interested</option>
-      <option>Wrong Number</option>
-    </select>
+        <option></option>
+        <option>Lead</option>
+        <option>Callback</option>
+        <option>Not Interested</option>
+    </select><br><br>
 
-    <div style="margin-top:12px" class="row">
-      <button id="btnSave" class="btn">Save Call</button>
-      <button id="btnClear" class="btn alt">Clear</button>
+    <button onclick="saveNow()">SAVE</button>
+
+    <hr>
+
+    <!-- ================= ADMIN PANEL ================= -->
+    <div id="adminPanel">
+        <h2>Admin Panel</h2>
+        <button onclick="loadResponses()">Load All Saved Leads</button>
+        <div id="responseTable"></div>
     </div>
-
-    <div id="saveMsg" class="small" style="margin-top:10px;display:none;color:#074">Saved ✓</div>
-  </div>
-
-  <!-- RESPONSES -->
-  <div class="card hidden" id="responsesCard">
-    <div class="small">Latest responses</div>
-    <div style="max-height:320px;overflow:auto;margin-top:8px">
-      <table id="responsesTable">
-        <thead><tr><th>Phone</th><th>Name</th><th>Postcode</th><th>Disposition</th><th>Agent</th><th>Time</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div style="margin-top:8px">
-      <button id="btnReload" class="btn alt">Reload</button>
-      <a id="downloadLink" class="small" href="#" target="_blank" style="margin-left:12px">Download CSV</a>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div class="card hidden" id="settingsCard">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div><strong>Admin Settings</strong></div>
-      <div><button id="btnSettingsClose" class="btn alt tiny">Close</button></div>
-    </div>
-    <div class="admin-note">Edit labels, help text, and options (comma separated).</div>
-
-    <div id="settingsContainer"></div>
-
-    <div style="margin-top:10px" class="row">
-      <button id="btnSaveSettings" class="btn">Save</button>
-      <button id="btnResetSettings" class="btn alt">Reset</button>
-    </div>
-  </div>
 
 </div>
 
+<!-- ================= SCRIPT ================= -->
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbz206WE6dR-FXERP0tALZCUIkwFqw0WjoaIduxuC6NsVO8BZSYPkDaWrEx7NAqlf-5O/exec";
+/* CONFIG */
+const API_URL = "YOUR_APPS_SCRIPT_DEPLOY_URL";   // Replace with new deployment URL
 
-/* Utility */
 const el = id => document.getElementById(id);
 
-/************************************************************
-  LOGIN
-************************************************************/
+/* ============================================================
+   SHA-256 (client-side hashing)
+============================================================ */
+async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* ================= LOGIN ================= */
 el("btnLogin").addEventListener("click", async () => {
-  const user = el("loginUser").value.trim();
-  const pass = el("loginPass").value.trim();
+    const user = el("loginUser").value.trim();
+    const pass = el("loginPass").value.trim();
+    if (!user || !pass) return showLoginMsg("Enter username & password");
 
-  if (!user || !pass) return showLoginMsg("Enter username & password");
+    const passHash = await sha256Hex(pass);
 
-  try {
     const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "login",
-        username: user,
-        password: pass
-      })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", username: user, password: passHash })
     });
 
     const j = await res.json();
 
     if (j.success) {
-      localStorage.setItem("crm_user", JSON.stringify({ username: user, role: j.role }));
-      setupAfterLogin();
+        localStorage.setItem("crm_user", JSON.stringify({ username: user, role: j.role }));
+        setupAfterLogin();
     } else {
-      showLoginMsg("Invalid credentials");
+        showLoginMsg("Invalid login");
     }
-
-  } catch (err) {
-    console.error(err);
-    showLoginMsg("Login failed");
-  }
 });
 
 el("btnDemo").addEventListener("click", () => {
-  el("loginUser").value = "agent01";
-  el("loginPass").value = "1";
-  el("btnLogin").click();
+    el("loginUser").value = "agent01";
+    el("loginPass").value = "1";
+    el("btnLogin").click();
 });
 
 function showLoginMsg(m) {
-  el("loginMsg").innerText = m;
-  el("loginMsg").style.display = "block";
-  setTimeout(() => el("loginMsg").style.display = "none", 2500);
+    el("loginMsg").innerText = m;
+    el("loginMsg").style.display = "block";
+    setTimeout(() => el("loginMsg").style.display = "none", 3000);
 }
 
-/************************************************************
-  LOGIN SUCCESS => SHOW UI
-************************************************************/
-function setupAfterLogin() {
-  const user = JSON.parse(localStorage.getItem("crm_user"));
-  if (!user) return;
+/* ================= LOAD CUSTOMER ================= */
+async function lookupNow() {
+    const phone = el("lookupPhone").value.trim();
+    if (!phone) return;
 
-  el("statusBox").innerText = "Signed in: " + user.username;
-  el("who").innerText = user.username;
-  el("roleBadge").innerText = user.role;
+    const res = await fetch(`${API_URL}?phone=${encodeURIComponent(phone)}`);
+    const data = await res.json();
 
-  document.getElementById("loginCard").classList.add("hidden");
-  document.getElementById("crmCard").classList.remove("hidden");
-  document.getElementById("questionsCard").classList.remove("hidden");
-
-  if (user.role === "admin" || user.role === "qa") {
-    document.getElementById("responsesCard").classList.remove("hidden");
-    el("downloadLink").href = API_URL + "?action=download_csv";
-  }
-
-  if (user.role === "admin") {
-    document.getElementById("settingsCard").classList.remove("hidden");
-  }
-}
-
-/************************************************************
-  LOGOUT
-************************************************************/
-el("btnLogout").addEventListener("click", () => {
-  localStorage.removeItem("crm_user");
-  location.reload();
-});
-
-/************************************************************
-  LOOKUP PHONE
-************************************************************/
-el("btnLookup").addEventListener("click", async () => {
-  const phone = el("phoneLookup").value.trim();
-  if (!phone) {
-    el("lookupMsg").innerText = "Enter phone number";
-    return;
-  }
-
-  el("lookupMsg").innerText = "Looking up...";
-
-  try {
-    const res = await fetch(API_URL + "?phone=" + encodeURIComponent(phone));
-    const j = await res.json();
-
-    if (j.error) {
-      el("lookupMsg").innerText = "Not found";
-      clearCustomer();
-      return;
+    if (data.error) {
+        alert("Not found");
+        el("customerBox").classList.add("hidden");
+        return;
     }
 
-    fillCustomer(j);
-    el("lookupMsg").innerText = "Found";
+    let html = `
+        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
+        ${data.address1}<br>
+        ${data.address2}<br>
+        ${data.address3}<br>
+        ${data.county}<br>
+        ${data.postcode}<br>
+        Age: ${data.age}<br>
+        Phone: ${data.telephone}
+    `;
 
-  } catch (err) {
-    el("lookupMsg").innerText = "Error";
-    console.error(err);
-  }
-});
-
-function fillCustomer(d) {
-  ["title","firstName","lastName","telephone","address1","address2","address3","county","postcode","age"]
-  .forEach(key => { el(key).value = d[key] || ""; });
+    el("cust").innerHTML = html;
+    el("customerBox").classList.remove("hidden");
 }
 
-function clearCustomer() {
-  ["title","firstName","lastName","telephone","address1","address2","address3","county","postcode","age"]
-  .forEach(key => el(key).value = "");
-}
+/* ================= SAVE ================= */
+async function saveNow() {
+    const user = JSON.parse(localStorage.getItem("crm_user"));
 
-/************************************************************
-  SAVE CALL
-************************************************************/
-el("btnSave").addEventListener("click", async () => {
-  const user = JSON.parse(localStorage.getItem("crm_user"));
-  if (!user) return alert("Login first");
+    const data = {
+        phone: el("lookupPhone").value.trim(),
+        militaryOpening: el("militaryOpening").value,
+        militaryQ1: el("militaryQ1").value,
+        militaryQ2: el("militaryQ2").value,
+        militaryQ3: el("militaryQ3").value,
+        scotlandQ1: el("scotlandQ1").value,
+        scotlandQ2: el("scotlandQ2").value,
+        ukQ1: el("ukQ1").value,
+        ukQ2: el("ukQ2").value,
+        notes: el("notes").value,
+        disposition: el("disposition").value,
+        agent: user.username
+    };
 
-  const phone = el("telephone").value.trim() || el("phoneLookup").value.trim();
-  if (!phone) return alert("Phone required");
-
-  const payload = {
-    phone,
-    title: el("title").value,
-    firstName: el("firstName").value,
-    lastName: el("lastName").value,
-    telephone: el("telephone").value,
-    address1: el("address1").value,
-    address2: el("address2").value,
-    address3: el("address3").value,
-    county: el("county").value,
-    postcode: el("postcode").value,
-    age: el("age").value,
-
-    militaryOpening: el("militaryOpening").value,
-    militaryQ1: el("militaryQ1").value,
-    militaryQ2: el("militaryQ2").value,
-    militaryQ3: el("militaryQ3").value,
-
-    scotlandQ1: el("scotlandQ1").value,
-    scotlandQ2: el("scotlandQ2").value,
-
-    ukQ1: el("ukQ1").value,
-    ukQ2: el("ukQ2").value,
-
-    notes: el("notes").value,
-    disposition: el("disposition").value,
-    agent: user.username
-  };
-
-  try {
     const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
     });
 
-    const text = await res.text();
+    alert("Saved!");
+}
 
-    if (text.trim().toUpperCase().includes("OK")) {
-      el("saveMsg").style.display = "block";
-      setTimeout(() => el("saveMsg").style.display = "none", 1500);
-      clearCustomer();
-      ["militaryOpening","militaryQ1","militaryQ2","militaryQ3","scotlandQ1","scotlandQ2","ukQ1","ukQ2","notes","disposition"]
-      .forEach(id => el(id).value = "");
-
-      const u = JSON.parse(localStorage.getItem("crm_user"));
-      if (u.role === "admin" || u.role === "qa") loadResponses();
-    }
-
-  } catch (err) {
-    alert("Save failed");
-    console.error(err);
-  }
-});
-
-/************************************************************
-  CLEAR FIELDS
-************************************************************/
-el("btnClear").addEventListener("click", () => {
-  clearCustomer();
-  ["militaryOpening","militaryQ1","militaryQ2","militaryQ3","scotlandQ1","scotlandQ2","ukQ1","ukQ2","notes","disposition"]
-  .forEach(id => el(id).value = "");
-});
-
-/************************************************************
-  LOAD RESPONSES
-************************************************************/
-el("btnReload").addEventListener("click", loadResponses);
-
+/* ================= ADMIN PANEL ================= */
 async function loadResponses() {
-  try {
-    const res = await fetch(API_URL + "?action=fetch_responses");
+    const res = await fetch(`${API_URL}?action=fetch_responses`);
     const j = await res.json();
-    const rows = j.values || [];
-    const tbody = document.querySelector("#responsesTable tbody");
-    tbody.innerHTML = "";
 
-    const start = rows[0] && rows[0][0] === "phone" ? 1 : 0;
+    let html = "<table border='1' cellpadding='5'>";
+    j.values.forEach(row => {
+        html += "<tr>";
+        row.forEach(col => html += `<td>${col}</td>`);
+        html += "</tr>";
+    });
+    html += "</table>";
 
-    for (let i = rows.length - 1; i >= start; i--) {
-      const r = rows[i];
-      const tr = document.createElement("tr");
+    el("responseTable").innerHTML = html;
+}
 
-      tr.innerHTML = `
-        <td>${r[0] || ""}</td>
-        <td>${(r[1]||"") + " " + (r[2]||"")}</td>
-        <td>${r[9] || ""}</td>
-        <td>${r[19] || ""}</td>
-        <td>${r[21] || ""}</td>
-        <td>${r[20] || ""}</td>
-      `;
+/* ================= SESSION ================= */
+window.addEventListener("load", () => {
+    const user = localStorage.getItem("crm_user");
+    if (user) setupAfterLogin();
+});
 
-      tbody.appendChild(tr);
+function setupAfterLogin() {
+    const user = JSON.parse(localStorage.getItem("crm_user"));
+    if (!user) return;
+
+    el("loginArea").style.display = "none";
+    el("mainArea").style.display = "block";
+    el("agentName").innerText = user.username;
+
+    if (user.role === "admin") {
+        el("adminPanel").style.display = "block";
+    } else {
+        el("adminPanel").style.display = "none";
     }
+}
 
-  } catch (err) {
-    console.error(err);
-  }
+function logout() {
+    localStorage.removeItem("crm_user");
+    location.reload();
 }
 
 </script>
+
 </body>
 </html>
