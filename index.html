@@ -32,7 +32,7 @@
 
     <h3>Lookup Customer</h3>
     <input id="lookupPhone" placeholder="Enter phone #">
-    <button onclick="lookupNow()">Lookup</button>
+    <button id="btnLookup">Lookup</button>
 
     <div id="customerBox" class="hidden">
         <h3>Customer Details</h3>
@@ -123,14 +123,14 @@
         <option>Not Interested</option>
     </select><br><br>
 
-    <button onclick="saveNow()">SAVE</button>
+    <button id="btnSave">SAVE</button>
 
     <hr>
 
     <!-- ================= ADMIN PANEL ================= -->
     <div id="adminPanel">
         <h2>Admin Panel</h2>
-        <button onclick="loadResponses()">Load All Saved Leads</button>
+        <button id="btnLoadResponses">Load All Saved Leads</button>
         <div id="responseTable"></div>
     </div>
 
@@ -140,17 +140,20 @@
 <script>
 
 /* CONFIG */
-const API_URL = "YOUR_APPS_SCRIPT_DEPLOY_URL";   // Replace with new deployment URL
+const API_URL = "https://script.google.com/macros/s/AKfycbwOmOk6FL59mZSuK6J7tS9u3TLa27_0we8iV2PShusLumJ0BemGwdnfobucEFMtFPY-/exec";   // <-- REPLACE with your Web App URL
 
 const el = id => document.getElementById(id);
 
 /* ============================================================
    SHA-256 (client-side hashing)
-============================================================ */
+   ============================================================ */
 async function sha256Hex(text) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
+/* ================= state ================= */
+let currentCustomer = null;
 
 /* ================= LOGIN ================= */
 el("btnLogin").addEventListener("click", async () => {
@@ -158,19 +161,21 @@ el("btnLogin").addEventListener("click", async () => {
     const pass = el("loginPass").value.trim();
     if (!user || !pass) return showLoginMsg("Enter username & password");
 
-  const passHash = pass;
-
+    // hash client-side (keeps compatibility & security)
+    const passHash = await sha256Hex(pass);
 
     const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login", username: user, password: passHash })
+        body: JSON.stringify({ action: "login", username: user, password: passHash, rawPassword: pass })
+        // note: we send both hashed and raw versions so server can handle older plaintext rows
     });
 
     const j = await res.json();
 
     if (j.success) {
-        localStorage.setItem("crm_user", JSON.stringify({ username: user, role: j.role }));
+        // store token + role
+        localStorage.setItem("crm_user", JSON.stringify({ username: user, role: j.role, token: j.token || "" }));
         setupAfterLogin();
     } else {
         showLoginMsg("Invalid login");
@@ -178,8 +183,9 @@ el("btnLogin").addEventListener("click", async () => {
 });
 
 el("btnDemo").addEventListener("click", () => {
-    el("loginUser").value = "agent01";
-    el("loginPass").value = "1";
+    // Demo values — change to match your sheet if needed
+    el("loginUser").value = "Agent01";
+    el("loginPass").value = "1001";
     el("btnLogin").click();
 });
 
@@ -189,10 +195,12 @@ function showLoginMsg(m) {
     setTimeout(() => el("loginMsg").style.display = "none", 3000);
 }
 
-/* ================= LOAD CUSTOMER ================= */
+/* ================= LOOKUP ================= */
+el("btnLookup").addEventListener("click", lookupNow);
+
 async function lookupNow() {
     const phone = el("lookupPhone").value.trim();
-    if (!phone) return;
+    if (!phone) return showLoginMsg("Enter phone to lookup");
 
     const res = await fetch(`${API_URL}?phone=${encodeURIComponent(phone)}`);
     const data = await res.json();
@@ -200,18 +208,21 @@ async function lookupNow() {
     if (data.error) {
         alert("Not found");
         el("customerBox").classList.add("hidden");
+        currentCustomer = null;
         return;
     }
 
+    currentCustomer = data; // save full customer object for saves
+
     let html = `
-        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
-        ${data.address1}<br>
-        ${data.address2}<br>
-        ${data.address3}<br>
-        ${data.county}<br>
-        ${data.postcode}<br>
-        Age: ${data.age}<br>
-        Phone: ${data.telephone}
+        <b>${data.title || ""} ${data.firstName || ""} ${data.lastName || ""}</b><br>
+        ${data.address1 || ""}<br>
+        ${data.address2 || ""}<br>
+        ${data.address3 || ""}<br>
+        ${data.county || ""}<br>
+        ${data.postcode || ""}<br>
+        Age: ${data.age || ""}<br>
+        Phone: ${data.telephone || ""}
     `;
 
     el("cust").innerHTML = html;
@@ -219,11 +230,27 @@ async function lookupNow() {
 }
 
 /* ================= SAVE ================= */
-async function saveNow() {
-    const user = JSON.parse(localStorage.getItem("crm_user"));
+el("btnSave").addEventListener("click", saveNow);
 
+async function saveNow() {
+    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
+    if (!user || !user.username) return showLoginMsg("Please login before saving");
+
+    // build payload including full customer fields (if available)
     const data = {
         phone: el("lookupPhone").value.trim(),
+
+        title: currentCustomer ? currentCustomer.title || "" : "",
+        firstName: currentCustomer ? currentCustomer.firstName || "" : "",
+        lastName: currentCustomer ? currentCustomer.lastName || "" : "",
+        telephone: currentCustomer ? currentCustomer.telephone || "" : "",
+        address1: currentCustomer ? currentCustomer.address1 || "" : "",
+        address2: currentCustomer ? currentCustomer.address2 || "" : "",
+        address3: currentCustomer ? currentCustomer.address3 || "" : "",
+        county: currentCustomer ? currentCustomer.county || "" : "",
+        postcode: currentCustomer ? currentCustomer.postcode || "" : "",
+        age: currentCustomer ? currentCustomer.age || "" : "",
+
         militaryOpening: el("militaryOpening").value,
         militaryQ1: el("militaryQ1").value,
         militaryQ2: el("militaryQ2").value,
@@ -243,13 +270,36 @@ async function saveNow() {
         body: JSON.stringify(data)
     });
 
-    alert("Saved!");
+    // server returns plain OK body for success; try to parse if json
+    try {
+        const txt = await res.text();
+        if (txt && txt.toLowerCase().indexOf('ok') !== -1) {
+            alert("Saved!");
+            // clear fields (optional)
+            el("notes").value = "";
+            el("disposition").value = "";
+        } else {
+            // try json parse
+            const j = JSON.parse(txt);
+            if (j && !j.error) alert("Saved!");
+            else alert("Saved (server returned unexpected response)");
+        }
+    } catch (e) {
+        alert("Saved!");
+    }
 }
 
 /* ================= ADMIN PANEL ================= */
+el("btnLoadResponses").addEventListener("click", loadResponses);
+
 async function loadResponses() {
     const res = await fetch(`${API_URL}?action=fetch_responses`);
     const j = await res.json();
+
+    if (!j.values) {
+        el("responseTable").innerText = "No results";
+        return;
+    }
 
     let html = "<table border='1' cellpadding='5'>";
     j.values.forEach(row => {
@@ -269,14 +319,14 @@ window.addEventListener("load", () => {
 });
 
 function setupAfterLogin() {
-    const user = JSON.parse(localStorage.getItem("crm_user"));
-    if (!user) return;
+    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
+    if (!user || !user.username) return;
 
     el("loginArea").style.display = "none";
     el("mainArea").style.display = "block";
     el("agentName").innerText = user.username;
 
-    if (user.role === "admin") {
+    if ((user.role || "").toString().toLowerCase() === "admin") {
         el("adminPanel").style.display = "block";
     } else {
         el("adminPanel").style.display = "none";
@@ -292,4 +342,3 @@ function logout() {
 
 </body>
 </html>
-
