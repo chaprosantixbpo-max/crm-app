@@ -15,12 +15,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("App script loaded");
 
-    const btn = document.getElementById("loginBtn");
+    const btn = document.getElementById("btnLogin");
     console.log("Button found?", btn);
 
-    btn?.addEventListener("click", () => {
-        console.log("Login button clicked!");
-    });
+    if (btn) {
+        btn.addEventListener("click", () => {
+            console.log("Login button clicked!");
+        });
+    }
 });
 </script>
 <h2>CRM Login</h2>
@@ -259,6 +261,7 @@ el("btnLoadResponses").addEventListener("click", async () => {
         html += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
     html += "</
+
 
 
 
