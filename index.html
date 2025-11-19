@@ -11,20 +11,6 @@
 </head>
 
 <body>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("App script loaded");
-
-    const btn = document.getElementById("btnLogin");
-    console.log("Button found?", btn);
-
-    if (btn) {
-        btn.addEventListener("click", () => {
-            console.log("Login button clicked!");
-        });
-    }
-});
-</script>
 
 <h2>CRM Login</h2>
 
@@ -52,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <hr>
+
     <h3>Questions</h3>
 
     <label>Military Opening</label>
@@ -71,8 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <label>Military Q3</label>
     <select id="militaryQ3">
-        <option></option><option>After 1987</option><option>Before 1987</option>
-        <option>Still serving</option><option>Retired</option>
+        <option></option><option>After 1987</option><option>Before 1987</option><option>Still serving</option><option>Retired</option>
     </select><br><br>
 
     <label>Scotland Q1</label>
@@ -82,8 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <label>Scotland Q2</label>
     <select id="scotlandQ2">
-        <option></option><option>Children’s Home</option><option>Residential School</option>
-        <option>Foster Care</option><option>Another setting</option>
+        <option></option><option>Children’s Home</option><option>Residential School</option><option>Foster Care</option><option>Another setting</option>
     </select><br><br>
 
     <label>UK Q1</label>
@@ -118,8 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </div>
 
+<!-- ========================= -->
+<!-- REAL WORKING JS SECTION -->
+<!-- ========================= -->
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwOmOk6FL59mZSuK6J7tS9u3TLa27_0we8iV2PShusLumJ0BemGwdnfobucEFMtFPY-/exec";  // MUST end with /exec
+const API_URL = "https://script.google.com/macros/s/AKfycbwOmOk6FL59mZSuK6J7tS9u3TLa27_0we8iV2PShusLumJ0BemGwdnfobucEFMtFPY-/exec";
 
 const el = id => document.getElementById(id);
 
@@ -129,142 +117,4 @@ async function sha256Hex(text) {
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-let currentCustomer = null;
-
-/* ================= LOGIN ================= */
-el("btnLogin").addEventListener("click", async () => {
-    const user = el("loginUser").value.trim();
-    const pass = el("loginPass").value.trim();
-    if (!user || !pass) return showLoginMsg("Enter username & password");
-
-    const passHash = await sha256Hex(pass);
-
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-            action: "login",
-            username: user,
-            password: passHash,
-            rawPassword: pass
-        })
-    });
-
-    const j = await res.json();
-
-    if (j.success) {
-        localStorage.setItem("crm_user", JSON.stringify({
-            username: user,
-            role: j.role,
-            token: j.token || ""
-        }));
-        setupAfterLogin();
-    } else showLoginMsg("Invalid login");
-});
-
-el("btnDemo").addEventListener("click", () => {
-    el("loginUser").value = "Agent01";
-    el("loginPass").value = "1001";
-    el("btnLogin").click();
-});
-
-function showLoginMsg(m) {
-    el("loginMsg").innerText = m;
-    el("loginMsg").style.display = "block";
-    setTimeout(() => el("loginMsg").style.display = "none", 2500);
-}
-
-/* ================= LOOKUP (POST FIXED) ================= */
-el("btnLookup").addEventListener("click", lookupNow);
-
-async function lookupNow() {
-    const phone = el("lookupPhone").value.trim();
-    if (!phone) return alert("Enter phone");
-
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "lookup", phone })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-        alert("Not found");
-        el("customerBox").classList.add("hidden");
-        currentCustomer = null;
-        return;
-    }
-
-    currentCustomer = data;
-
-    el("cust").innerHTML = `
-        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
-        ${data.address1}<br>${data.address2}<br>${data.address3}<br>
-        ${data.county}<br>${data.postcode}<br>
-        Age: ${data.age}<br>
-        Phone: ${data.telephone}
-    `;
-    el("customerBox").classList.remove("hidden");
-}
-
-/* ================= SAVE (POST FIXED) ================= */
-el("btnSave").addEventListener("click", saveNow);
-
-async function saveNow() {
-    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
-    if (!user.username) return alert("Login first");
-
-    const payload = {
-        action: "save",
-        agent: user.username,
-        title: currentCustomer?.title || "",
-        firstName: currentCustomer?.firstName || "",
-        lastName: currentCustomer?.lastName || "",
-        telephone: currentCustomer?.telephone || "",
-        address1: currentCustomer?.address1 || "",
-        address2: currentCustomer?.address2 || "",
-        address3: currentCustomer?.address3 || "",
-        county: currentCustomer?.county || "",
-        postcode: currentCustomer?.postcode || "",
-        age: currentCustomer?.age || "",
-        militaryOpening: el("militaryOpening").value,
-        militaryQ1: el("militaryQ1").value,
-        militaryQ2: el("militaryQ2").value,
-        militaryQ3: el("militaryQ3").value,
-        scotlandQ1: el("scotlandQ1").value,
-        scotlandQ2: el("scotlandQ2").value,
-        ukQ1: el("ukQ1").value,
-        ukQ2: el("ukQ2").value,
-        notes: el("notes").value,
-        disposition: el("disposition").value
-    };
-
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    });
-
-    alert("Saved!");
-}
-
-/* ================= ADMIN PANEL ================= */
-el("btnLoadResponses").addEventListener("click", async () => {
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action:"fetch_responses" })
-    });
-
-    const j = await res.json();
-
-    if (!j.values) return el("responseTable").innerText = "No results";
-
-    let html = "<table border='1' cellpadding='5'>";
-    j.values.forEach(r => {
-        html += "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
-    });
-    html += "</
-
-
-
-
-
-
+/* ================= LOGIN =================*
