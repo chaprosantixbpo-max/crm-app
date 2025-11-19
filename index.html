@@ -117,4 +117,142 @@ async function sha256Hex(text) {
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-/* ================= LOGIN =================*
+/* ================= LOGIN ================= */
+el("btnLogin").addEventListener("click", async () => {
+    const user = el("loginUser").value.trim();
+    const pass = el("loginPass").value.trim();
+    if (!user || !pass) return showLoginMsg("Enter username & password");
+
+    const passHash = await sha256Hex(pass);
+
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "login",
+            username: user,
+            password: passHash,
+            rawPassword: pass
+        })
+    });
+
+    const j = await res.json();
+
+    if (j.success) {
+        localStorage.setItem("crm_user", JSON.stringify({
+            username: user,
+            role: j.role,
+            token: j.token || ""
+        }));
+        setupAfterLogin();
+    } else showLoginMsg("Invalid login");
+});
+
+/* DEMO BUTTON */
+el("btnDemo").addEventListener("click", () => {
+    el("loginUser").value = "Agent01";
+    el("loginPass").value = "1001";
+    el("btnLogin").click();
+});
+
+/* Show login message */
+function showLoginMsg(m) {
+    el("loginMsg").innerText = m;
+    el("loginMsg").style.display = "block";
+    setTimeout(() => el("loginMsg").style.display = "none", 2500);
+}
+
+/* ================= LOOKUP ================= */
+el("btnLookup").addEventListener("click", lookupNow);
+
+async function lookupNow() {
+    const phone = el("lookupPhone").value.trim();
+    if (!phone) return alert("Enter phone");
+
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "lookup", phone })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+        alert("Not found");
+        el("customerBox").classList.add("hidden");
+        return;
+    }
+
+    el("cust").innerHTML = `
+        <b>${data.title} ${data.firstName} ${data.lastName}</b><br>
+        ${data.address1}<br>${data.address2}<br>${data.address3}<br>
+        ${data.county}<br>${data.postcode}<br>
+        Age: ${data.age}<br>
+        Phone: ${data.telephone}
+    `;
+    el("customerBox").classList.remove("hidden");
+}
+
+/* ================= SAVE ================= */
+el("btnSave").addEventListener("click", saveNow);
+
+async function saveNow() {
+    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
+    if (!user.username) return alert("Login first");
+
+    const payload = {
+        action: "save",
+        agent: user.username,
+        // (You can add all your fields here exactly how you had it)
+        notes: el("notes").value,
+        disposition: el("disposition").value
+    };
+
+    await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
+
+    alert("Saved!");
+}
+
+/* ================= ADMIN LOAD ================= */
+el("btnLoadResponses").addEventListener("click", async () => {
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action:"fetch_responses" })
+    });
+
+    const j = await res.json();
+
+    if (!j.values) return el("responseTable").innerText = "No results";
+
+    let html = "<table border='1' cellpadding='5'>";
+    j.values.forEach(row => {
+        html += "<tr>" + row.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    });
+    html += "</table>";
+
+    el("responseTable").innerHTML = html;
+});
+
+/* ================= POST-LOGIN SETUP ================= */
+function setupAfterLogin() {
+    const user = JSON.parse(localStorage.getItem("crm_user") || "{}");
+
+    el("loginArea").style.display = "none";
+    el("mainArea").style.display = "block";
+    el("agentName").innerText = user.username;
+
+    if (user.role === "admin") {
+        el("adminPanel").style.display = "block";
+    }
+}
+
+/* ================= LOGOUT ================= */
+function logout() {
+    localStorage.removeItem("crm_user");
+    window.location.reload();
+}
+</script>
+
+</body>
+</html>
